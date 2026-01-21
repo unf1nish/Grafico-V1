@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico Agencia Aduanas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7899d6 0%, #19356a 100%);
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #7899d6 0%, #19356a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .stat-card .subvalue {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gráfico costos Operación y Proveedor</h1>
+        <p class="subtitle">Comparación de tarifas en Importación y Exportación | Datos en COP</p>
+
+        <div class="chart-wrapper">
+            <canvas id="mainChart"></canvas>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Proveedor más económico</h3>
+                <div class="value">SIACO</div>
+                <div class="subvalue">Promedio: COP $438,400</div>
+            </div>
+            <div class="stat-card">
+                <h3>Mayor Ahorro potencial</h3>
+                <div class="value">COP $428,000</div>
+                <div class="subvalue">Exportación FCL Marítimo (SIACO vs ROLDAN)</div>
+            </div>
+            <div class="stat-card">
+                <h3>Operación más costosa</h3>
+                <div class="value">Export. FCL</div>
+                <div class="subvalue">COP $808,000 (ROLDAN - Marítimo)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('mainChart').getContext('2d');
+
+        const data = {
+            labels: [
+                'Import. LCL\nMarítimo',
+                'Import.\nAéreo',
+                'Export. FCL\nMarítimo',
+                'Export. LCL\nMarítimo',
+                'Export.\nAéreo'
+            ],
+            datasets: [
+                {
+                    label: 'ROLDAN LOGISTICS',
+                    data: [580000, 700000, 808000, 630000, 300000],
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    borderRadius: 5
+                },
+                {
+                    label: 'SIACO',
+                    data: [516000, 616000, 380000, 380000, 300000],
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    borderRadius: 5
+                },
+                {
+                    label: 'ML',
+                    data: [564000, 564000, 414000, 414000, 270000],
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }
+            ]
+        };
+
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            padding: 20
+                        }
+                    },
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += 'COP $' + context.parsed.y.toLocaleString('es-CO');
+                                return label;
+                            }
+                        },
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'COP $' + (value/1000).toFixed(0) + 'K';
+                            },
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 15,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                barPercentage: 0.8,
+                categoryPercentage: 0.9
+            }
+        };
+
+        new Chart(ctx, config);
+    </script>
+</body>
+</html>
